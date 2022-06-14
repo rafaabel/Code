@@ -1,0 +1,184 @@
+{
+    "ConfigurationMetadata": {
+        "CRNumber": "CHG0507597",
+        "Description": "[BUR] Mars-AD.Net: BUR promo (AD DS/DNS/DHCP) OS19",
+        "ScheduledDate": "11.11.2021"
+    },
+    "NetworkInterface": {
+        "promoMode": "Fix",
+        "Alias": "Production", 
+        "__DnsServerAddresses_gua": ["10.121.16.185", "10.200.128.10", "10.114.28.112", "127.0.0.1"],
+        "__DnsServerAddresses_slo": ["10.121.16.185", "10.200.128.10", "10.2.16.56", "127.0.0.1"],
+        "__DnsServerAddresses_rca": ["10.121.16.185", "10.200.128.10", "10.24.22.172", "127.0.0.1"],
+        "__DnsServerAddresses_wun": ["10.121.16.185", "10.200.128.10", "1.60.105.76", "127.0.0.1"],
+        "__DnsServerAddresses_yng": ["10.121.16.185", "10.200.128.10", "10.157.78.150", "127.0.0.1"],
+        "__DnsServerAddresses_isx": ["10.121.16.185", "10.200.128.10", "10.120.67.8", "127.0.0.1"],
+        "DnsServerAddresses": ["10.121.16.185", "10.200.128.10", "10.120.67.8", "127.0.0.1"]
+    },
+    "DnsServer": {
+        "promoMode": "Fix",
+        "__ForwarderAddresses_google": ["8.8.8.8", "8.8.4.4"],
+        "__ForwarderAddresses_isx_wun": ["10.120.67.8", "10.120.9.10", "1.60.105.75", "1.60.105.76"],
+        "__ForwarderAddresses_yng": ["10.157.78.150", "10.157.78.151"],
+        "ForwarderAddresses": ["8.8.8.8", "8.8.4.4"],
+        "DebugLogging": {
+            "RWDC" :{
+                "logfilePath": "E:\\dns",
+                "logfileName": "dns.log",
+                "logLevel": "0xf321",
+                "logfileMaxSize": "0xfa00000"
+            },
+            "RODC" :{
+                "logfilePath": "C:\\dns",
+                "logfileName": "dns.log",
+                "logLevel": "0xf321",
+                "logfileMaxSize": "0xc800000"
+            }
+        }
+    },
+    "DhcpServer": {
+        "promoMode": "Fix",
+        "DhcpLogsSize": {
+            "DhcpAdminEvents": "52428800",
+            "DhcpServerFilterNotifications": "52428800",
+            "DhcpServerOperational": "52428800"
+        }
+    },
+    "VolumLabel": {
+        "promoMode": "Fix",
+        "C" : "Operating System",
+        "D" : "AD DB and Logs"    
+    },
+    "RolesAndFeatures": {
+        "promoMode": "Fix",
+        "__PromotionTypes_Comment": ["DC", "DHCP"],
+        "PromotionTypes": ["DC", "DHCP"],
+        "CommonFeatures": ["Windows-Server-Backup", "RSAT-ADDS-Tools", "RSAT-DNS-Server"],
+        "DC": ["AD-Domain-Services", "DNS"],
+        "DHCP": ["DHCP", "RSAT-DHCP"]
+    }, 
+    "DomainController" : {
+        "promoMode": "Fix",
+        "Type": "RODC",
+        "adSite": "BUR",
+        "IFMSource": true,
+        "RODC": {
+            "ntdsPath": "D:\\Windows\\NTDS",
+            "logPath": "D:\\Windows\\NTDS",
+            "sysvolPath": "D:\\Windows\\SYSVOL",            
+            "ifmPath": "C:\\Support\\A\\ifm-rodc19"
+        },
+        "RWDC": {
+            "ntdsPath": "D:\\Windows\\NTDS",
+            "logPath": "E:\\Windows\\NTDS",
+            "sysvolPath": "D:\\Windows\\SYSVOL",
+            "ifmPath": "f:\\ifm-rwdc19"
+        }
+    },
+    "Agents" : {
+        "promoMode": "Fix",
+        "Count": 17,
+        "Agent1": {
+            "Name": "Splunk Universal Forwarder",
+            "Filter": "UniversalF*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent2": {
+            "Name": "Symantec Management Agent (Altiris)",
+            "Filter": "Altiris*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent3": {
+            "Name": "Symantec Endpoint Protection (Replaced with CrowdStrike)",
+            "Filter": "Symantec Endpoint*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent4": {
+            "Name": "Cybereason Agents (Replaced with CrowdStrike)",
+            "Filter": "Cybereason*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent5": {
+            "Name": "CrowdStrike Falcon Sensor Agents",
+            "Filter": "CrowdStrike Sensor*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent6": {
+            "Name": "Quest Change Auditor Agent 7",
+            "Filter": "Quest Change Auditor*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent7": {
+            "Name": "Quest Backup Agent for Active Directory",
+            "Filter": "Quest Backup Agent*",
+            "Action": "Check",
+            "DCType": ["RWDC"]
+        },
+        "Agent8": {
+            "Name": "Quest Forest Recovery Agent",
+            "Filter": "Quest Forest*",
+            "Action": "Check",
+            "DCType": ["RWDC"]
+        },
+        "Agent9": {
+            "Name": "Azure Advanced Threat Protection Sensor",
+            "Filter": "Azure Advanced Threat*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent10": {
+            "Name": "Azure AD Password Protection DC Agent",
+            "Filter": "Azure AD Password Protection*",
+            "Action": "Check",
+            "DCType": ["RWDC"]
+        },
+        "Agent11": {
+            "Name": "Microsoft Identity Manager Password Change Notification Service",
+            "Filter": "Microsoft Identity Manager Password*",
+            "Action": "Check",
+            "DCType": ["RWDC"]
+        },
+        "Agent12": {
+            "Name": "Check MK Agent",
+            "Filter": "*MK Agent*",
+            "Action": "Uninstall",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent13": {
+            "Name": "Puppet Agents",
+            "Filter": "Puppet Agent*",
+            "Action": "Uninstall",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent14": {
+            "Name": "Microsoft Monitoring Agent",
+            "Filter": "Microsoft Monitoring*",
+            "Action": "Uninstall",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent15": {
+            "Name": "Commvault ContentStore",
+            "Filter": "WindowsFileSystemiDataAgentCore*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent16": {
+            "Name": "FlexNet Inventory Agent",
+            "Filter": "FlexNet Inventory*",
+            "Action": "Uninstall",
+            "DCType": ["RWDC", "RODC"]
+        },
+        "Agent17": {
+            "Name": "Rapid7 Insight Agent",
+            "Filter": "Rapid7 Insight*",
+            "Action": "Check",
+            "DCType": ["RWDC", "RODC"]
+        } 
+    }
+}
