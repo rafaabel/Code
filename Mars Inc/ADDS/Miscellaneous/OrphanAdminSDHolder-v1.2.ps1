@@ -13,7 +13,7 @@
 .DATE
 07 / 11 / 2022
 #>
-
+Import-Module ActiveDirectory
 Function Get-OrphanAdminSdHolderGroup {
     [CmdletBinding()]	
     Param ()
