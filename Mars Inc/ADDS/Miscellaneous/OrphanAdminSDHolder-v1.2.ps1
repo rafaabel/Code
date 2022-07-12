@@ -1,6 +1,87 @@
-#Requires -Version 3.0
-#Requires -Module ActiveDirectory
 
+<#
+.Synopsis
+   Detect AdminSDHolder users and groups
+.DESCRIPTION
+   Detect AdminSDHolder users and groups, clean AdminCount attribute and enable inheritance
+.REQUIREMENTS
+   This script must be run locally from any DC
+   -Module ActiveDirectory
+.AUTHOR
+   Rafael Abel - rafael.abel@effem.com
+   Based on https://gist.github.com/webash/b34c5a422288827ff4e53318e34c6923
+.DATE
+07 / 11 / 2022
+#>
+
+Function Get-OrphanAdminSdHolderGroup {
+    [CmdletBinding()]	
+    Param ()
+    Begin {}
+    Process {}
+    End { 
+        Get-ADGroup -LDAPFilter '(&(objectClass=group)(AdminCount=1) (!(|(cn=Administrators)(cn=Enterprise Admins)(cn=Domain Admins)(cn=Backup Operators)(cn=Server Operators)(cn=Replicator)(cn=Account Operators)(cn=Domain Controllers)(cn=Read-only Domain Controllers)(cn=Schema Admins)(cn=Print Operators)(cn=Key Admins)(cn=Enterprise Key Admins))))'
+    }
+}
+<#
+    .SYNOPSIS
+        Detects Orphaned SD Admin groups
+    .DESCRIPTION
+        Get all groups tthat have the AD Attribute AdminCount=1 set but are not the default protected groups. If the group has the AdminCount=1 enabled but is 
+        not a protected group then the group is considered an orphaned admin group.
+#>
+Function Clear-OrphanAdminSdHolderGroup {
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+    Param(
+        [parameter(Mandatory, ValueFromPipeline)]
+        [Microsoft.ActiveDirectory.Management.ADPrincipal[]]$OrphanGroup
+    )
+    Begin {}
+    Process {
+        $OrphanGroup |
+        Where-Object { $_.SamAccountName -ne 'krbtgt' } |
+        ForEach-Object {
+            $group = $_
+            if ($pscmdlet.ShouldProcess($_, 'Clear AdminCount and reset permissions inheritance')) {
+                try {
+                    $group  | Set-ADGroup -Clear AdminCount -ErrorAction Stop
+                    Write-Verbose -Message ('Clearing AdminCount for {0}' -f $group.SamAccountName)
+                }
+                catch {
+                    Write-Warning -Message "Failed to clear admincount property for $($group.SamAccountName) because $($_.Exception.Message)"
+                }
+		
+                try {
+                    $Acl = Get-ACL -Path ('AD:\{0}' -f $group.DistinguishedName) -ErrorAction Stop
+                    If ($Acl.AreAccessRulesProtected) {
+                        $Acl.SetAccessRuleProtection($False, $True)
+                        Set-ACL -AclObject $ACL -Path ('AD:\{0}' -f $group.DistinguishedName) -ErrorAction Stop
+                        Write-Verbose -Message ('Enabling Inheritence for {0}' -f $group.SamAccountName)
+                    }
+                    else {
+                        Write-Verbose -Message ('Inheritence already set for {0}' -f $group.SamAccountName)
+                    }
+                }
+                catch {
+                    Write-Warning -Message "Failed to enable inheritence for $($group.SamAccountName) because $($_.Exception.Message)"
+                }
+            }
+        }
+    }
+    End {}
+    <#
+    .SYNOPSIS
+        Resets admin count attribute and enables inheritable permissions on AD group
+    .DESCRIPTION
+        The AdminCount attributed is cleared and inheritable permissions are reset
+    .PARAMETER OrphanGroup
+        A list or array of ADGroup objects
+    .EXAMPLE
+        Get-OrphanAdminSdHolderGroup| Select -First 1 | Clear-OrphanAdminSdHolderGroup -WhatIf
+    .EXAMPLE
+        Get-OrphanAdminSdHolderGroup | Clear-OrphanAdminSdHolderGroup
+#>
+}  
 Function Get-OrphanAdminSdHolderUser {
     [CmdletBinding()]	
     Param()
@@ -52,7 +133,7 @@ Function Clear-OrphanAdminSdHolderUser {
             $user = $_
             if ($pscmdlet.ShouldProcess($_, 'Clear AdminCount and reset permissions inheritance')) {
                 try {
-                    $user | Set-ADUser -Clear { AdminCount } -ErrorAction Stop
+                    $user | Set-ADUser -Clear AdminCount -ErrorAction Stop
                     Write-Verbose -Message ('Clearing AdminCount for {0}' -f $user.SamAccountName)
                 }
                 catch {
