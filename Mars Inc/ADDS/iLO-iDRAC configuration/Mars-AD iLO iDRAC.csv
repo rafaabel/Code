@@ -1,2 +1,0 @@
-hostName,Comment,site,dcType,roles,ram,diskSpace,cpu,ipAddress,iLO,operatingSystem,model,serialNumber,productNumber,description
-GUADC101,replacement in progress; new VM - GUADCX101,GUA,GC,"AD, DHCP, DNS, FileAndStorage",32,"C: 150, D: 60, E: 50, F: 800, M: 0",1 x 2.20GHz,10.114.28.112,10.114.28.55,Windows Server 2016 Datacenter,ProLiant DL380 Gen9,BRC727901C,861000-S05,"LA, BR, Guararema, Multi-Segment Units. HW - old"
