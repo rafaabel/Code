@@ -12,12 +12,12 @@
 #>
 
 
-$users = Import-Csv -path "C:\Users\abelraf\OneDrive - Mars Inc\Documents\IDSS Team\Projects\ADDS\Trimarc Reports\RCAD_inactiveAccounts_11.02.2022.csv"
+$users = Import-Csv -path "C:\path\file.csv"
 
 ForEach ($user in $users) {
 
-    Enable-ADAccount -Identity $user.SamAccountName
+   Enable-ADAccount -Identity $user.SamAccountName
 
-    write-host "user $($user) has been enabled"
+   write-host "user $($user) has been enabled"
 
 }

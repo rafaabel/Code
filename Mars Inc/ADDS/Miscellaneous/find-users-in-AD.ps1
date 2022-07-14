@@ -17,9 +17,9 @@
 
 $ExportPath = 'C:\Temp\find_users_in_AD.csv'
 $ADObjects = Get-ADUser -Properties * -Filter '
-    extensionAttribute15 -eq "KEV" -or 
-    extensionAttribute15 -eq "RKI" -or 
-    extensionAttribute15 -eq "WKI"'
+    extensionAttribute15 -eq "SITECODE" -or 
+    extensionAttribute15 -eq "SITECODE" -or 
+    extensionAttribute15 -eq "SITECODE"'
 
 $ADObjects | Select-Object DistinguishedName, Name, UserPrincipalName, Mail, Enabled, extensionAttribute15 | 
 Export-Csv -NoType $ExportPath

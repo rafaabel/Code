@@ -86,41 +86,38 @@ The next command gets the installed applications on the computers in C:\ListOfNa
 #* SCRIPT BODY
 #*=============================================================================
 function Get-InstalledSoftware {
-param 
-( 
-    [Parameter(ValueFromPipeline=$true)] 
-    [String[]] $ComputerName = @($env:COMPUTERNAME),
-	[switch] $HideErrors,
-	[switch] $ShowErrors
-) 
+    param 
+    ( 
+        [Parameter(ValueFromPipeline = $true)] 
+        [String[]] $ComputerName = @($env:COMPUTERNAME),
+        [switch] $HideErrors,
+        [switch] $ShowErrors
+    ) 
  
-begin 
-{ 
-    # Create an array to hold our job objects 
-    $jobs = @() 
+    begin { 
+        # Create an array to hold our job objects 
+        $jobs = @() 
 	
-	# Ensure that both switches weren't set
-	if ($ShowErrors -and $HideErrors) {throw "Invalid switch parameter combination"}
-} 
+        # Ensure that both switches weren't set
+        if ($ShowErrors -and $HideErrors) { throw "Invalid switch parameter combination" }
+    } 
  
-process 
-{ 
-    foreach ($name in $ComputerName) 
-    { 
-        # We use Invoke-Command to remotely call the scriptblock below and  
-        # create a job for each computer so that the work runs concurrently. 
-        $jobs += Invoke-Command -ComputerName $name -ScriptBlock `
-        { 
+    process { 
+        foreach ($name in $ComputerName) { 
+            # We use Invoke-Command to remotely call the scriptblock below and  
+            # create a job for each computer so that the work runs concurrently. 
+            $jobs += Invoke-Command -ComputerName $name -ScriptBlock `
+            { 
 		
-#*=============================================================================
-#* BEGIN REMOTE SCRIPTBLOCK
-#*=============================================================================
+                #*=============================================================================
+                #* BEGIN REMOTE SCRIPTBLOCK
+                #*=============================================================================
 
-# Any error at this point should be terminating
-$ErrorActionPreference = "Stop"
+                # Any error at this point should be terminating
+                $ErrorActionPreference = "Stop"
 		
-# Create a custom object to hold our application information 
-Add-Type @' 
+                # Create a custom object to hold our application information 
+                Add-Type @' 
 public class InstalledApplication { 
     public string     DisplayName; 
     public string     InstallDate; 
@@ -135,100 +132,93 @@ public class InstalledApplication {
 } 
 '@ # This is required to be at the beginning of the line 
  
-# This is the real magic of the script.  We use Get-ChildItem to  
-# get all of the subkeys that contain application info. 
-$keys = Get-ChildItem `
-	HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall -Recurse 
+                # This is the real magic of the script.  We use Get-ChildItem to  
+                # get all of the subkeys that contain application info. 
+                $keys = Get-ChildItem `
+                    HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall -Recurse 
 
-# Get registry info from the Wow6432Node if the computer is 64-bit
-if ((Get-WmiObject Win32_ComputerSystem).SystemType -like "x64*")
-{
-	$keys += Get-ChildItem `
-		HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall -Recurse
-}
+                # Get registry info from the Wow6432Node if the computer is 64-bit
+                if ((Get-WmiObject Win32_ComputerSystem).SystemType -like "x64*") {
+                    $keys += Get-ChildItem `
+                        HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall -Recurse
+                }
 
-$app = New-Object InstalledApplication 
+                $app = New-Object InstalledApplication 
  
-# Build out each InstalledApplication object 
-foreach ($key in $keys) 
-{ 
-	# If we've made it to this point we can safely ignore errors
-	$ErrorActionPreference = "SilentlyContinue"
+                # Build out each InstalledApplication object 
+                foreach ($key in $keys) { 
+                    # If we've made it to this point we can safely ignore errors
+                    $ErrorActionPreference = "SilentlyContinue"
 	
-    $app.DisplayName = $key.GetValue("DisplayName") 
-    if ([string]::IsNullOrEmpty($app.DisplayName)) { continue }  
+                    $app.DisplayName = $key.GetValue("DisplayName") 
+                    if ([string]::IsNullOrEmpty($app.DisplayName)) { continue }  
 
-    # We need to convert the date from yyyymmdd to mm/dd/yyyy 
-    if ($tempDate = $key.GetValue("InstallDate")) 
-    { 
-        $tempDate = $tempDate.SubString(4,2) + "/" + `
-					$tempDate.SubString(6,2) + "/" + `
-                    $tempDate.SubString(0,4) 
-    } 
+                    # We need to convert the date from yyyymmdd to mm/dd/yyyy 
+                    if ($tempDate = $key.GetValue("InstallDate")) { 
+                        $tempDate = $tempDate.SubString(4, 2) + "/" + `
+                            $tempDate.SubString(6, 2) + "/" + `
+                            $tempDate.SubString(0, 4) 
+                    } 
      
-    $app.InstallDate = $tempDate 
-    $app.Publisher = $key.GetValue("Publisher") 
-    $app.DisplayVersion = $key.GetValue("DisplayVersion") 
-    $app.VersionMajor = $key.GetValue("VersionMajor") 
-    $app.VersionMinor = $key.GetValue("VersionMinor") 
-    $app.EstimatedSizeMB = '{0:N2}' -f ($key.GetValue("EstimatedSize") / 1MB) 
-    $app.ModifyPath = $key.GetValue("ModifyPath") 
-    $app.InstallSource = $key.GetValue("Installsource") 
-    $app.UninstallString = $key.GetValue("UninstallString") 
+                    $app.InstallDate = $tempDate 
+                    $app.Publisher = $key.GetValue("Publisher") 
+                    $app.DisplayVersion = $key.GetValue("DisplayVersion") 
+                    $app.VersionMajor = $key.GetValue("VersionMajor") 
+                    $app.VersionMinor = $key.GetValue("VersionMinor") 
+                    $app.EstimatedSizeMB = '{0:N2}' -f ($key.GetValue("EstimatedSize") / 1MB) 
+                    $app.ModifyPath = $key.GetValue("ModifyPath") 
+                    $app.InstallSource = $key.GetValue("Installsource") 
+                    $app.UninstallString = $key.GetValue("UninstallString") 
 	
-	# Only send back data for apps with a name
-    if ($app.DisplayName) {Write-Output $app}
+                    # Only send back data for apps with a name
+                    if ($app.DisplayName) { Write-Output $app }
 	
-	$ErrorActionPreference = "Continue"
-} # end foreach key 
+                    $ErrorActionPreference = "Continue"
+                } # end foreach key 
 
-#*=============================================================================
-#* END REMOTE SCRIPTBLOCK
-#*=============================================================================
+                #*=============================================================================
+                #* END REMOTE SCRIPTBLOCK
+                #*=============================================================================
 			
-        } -AsJob
-    } # end foreach name 
-} 
+            } -AsJob
+        } # end foreach name 
+    } 
 
-# Wait for all jobs to complete, receive output, then remove the jobs
-end 
-{ 
-	$originalColor = $Host.UI.RawUI.ForegroundColor 
-	$errorList = @{}
-    $jobs | Wait-Job | Out-Null
+    # Wait for all jobs to complete, receive output, then remove the jobs
+    end { 
+        $originalColor = $Host.UI.RawUI.ForegroundColor 
+        $errorList = @{}
+        $jobs | Wait-Job | Out-Null
 	
-	# Completed successfully
-	$completed = $jobs | where {$_.State -eq "Completed"} | Receive-Job
+        # Completed successfully
+        $completed = $jobs | where { $_.State -eq "Completed" } | Receive-Job
 	
-	# Did not complete
-	$jobs | where {$_.State -ne "Completed"} | `
-		foreach {$errorList[$_.Location] = Receive-Job -Job $_ 2>&1}
+        # Did not complete
+        $jobs | where { $_.State -ne "Completed" } | `
+            foreach { $errorList[$_.Location] = Receive-Job -Job $_ 2>&1 }
 	
-	# Display the appropriate output based on the switch parameters
-	if ($HideErrors)
-	{
-		Write-Output $completed
-	}
-	elseif ($ShowErrors)
-	{
-		# Since these are errors, they need to be displayed in red text
-		$Host.ui.rawui.ForegroundColor = "red" 
-	    Write-Output $errorList
-		$Host.ui.rawui.ForegroundColor = $originalColor 
-	}
-	else
-	{
-		Write-Output $completed
-		$Host.ui.rawui.ForegroundColor = "red" 
-	    Write-Output $errorList
-		$Host.ui.rawui.ForegroundColor = $originalColor 
-	}
+        # Display the appropriate output based on the switch parameters
+        if ($HideErrors) {
+            Write-Output $completed
+        }
+        elseif ($ShowErrors) {
+            # Since these are errors, they need to be displayed in red text
+            $Host.ui.rawui.ForegroundColor = "red" 
+            Write-Output $errorList
+            $Host.ui.rawui.ForegroundColor = $originalColor 
+        }
+        else {
+            Write-Output $completed
+            $Host.ui.rawui.ForegroundColor = "red" 
+            Write-Output $errorList
+            $Host.ui.rawui.ForegroundColor = $originalColor 
+        }
 	
-    $jobs | Remove-Job 
-}
-#*=============================================================================
-#* END OF SCRIPT: getInstalledSoftware
-#*=============================================================================
+        $jobs | Remove-Job 
+    }
+    #*=============================================================================
+    #* END OF SCRIPT: getInstalledSoftware
+    #*=============================================================================
 }
 
 
@@ -242,16 +232,16 @@ $aarr = Get-ADDomainController -Filter * | sort isReadOnly, name | select -Expan
 #$adcs1 = Get-ADDomainController -Filter 'isreadonly -eq $false'| select isreadonly, name | sort name
 ##[string[]]$aarr=$adcs1.GetEnumerator().ForEach({ "$($_.Name)$($_.Value)" })
 
-$hOutcome=@()
+$hOutcome = @()
 #foreach ($dc in $adcs) {
     
- #   $dc.name
+#   $dc.name
 
-  #  $asoft = $null
-    $hOutcome = Get-InstalledSoftware -ComputerName $aarr  | select psComputerName, displayName,  publisher, displayVersion, installDate, installSource, uninstallString | sort psComputerName, displayName 
+#  $asoft = $null
+$hOutcome = Get-InstalledSoftware -ComputerName $aarr  | select psComputerName, displayName, publisher, displayVersion, installDate, installSource, uninstallString | sort psComputerName, displayName 
             
 
-   # $hOutcome += $asoft
+# $hOutcome += $asoft
 #}
 
 $hOutcome | Out-GridView 

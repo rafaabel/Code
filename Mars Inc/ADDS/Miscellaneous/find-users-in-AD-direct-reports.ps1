@@ -16,8 +16,8 @@
 Connect-QADService -proxy 
 
 #Variables
-$ExportPath = 'C:\Temp\All Ears Dist 10.04.2021.csv'
-$target = "singhikd" #Set the user who you want to get all its direct reports in a recursive way (eg: a president from a segment)
+$ExportPath = 'C:\path\file.csv'
+$target = "user" #Set the user who you want to get all its direct reports in a recursive way (eg: a president from a segment)
 $ArrDirectRep = [System.Collections.ArrayList]@(); 
 $i = 0;
 

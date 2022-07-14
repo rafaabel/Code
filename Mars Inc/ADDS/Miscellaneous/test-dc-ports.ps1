@@ -11,7 +11,7 @@
     09/27/2021
 #>
 
-$destinationdc = "AZR-WUSW5162.Mars-AD.Net"
+$destinationdc = "DC"
 
 Test-Netconnection -Computername $destinationdc -Port 3389
 Test-Netconnection -Computername $destinationdc -Port 88

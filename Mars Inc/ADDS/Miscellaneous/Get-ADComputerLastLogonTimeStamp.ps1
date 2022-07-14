@@ -1,7 +1,7 @@
 Import-Module ActiveDirectory
 
 $computerLastLogonTimeStamps = @()
-$computers = Import-Csv -Path "C:\Users\abelraf\OneDrive - Mars Inc\Documents\Identity Team\Projects\ADDS\PingCastle reports\computerpasswordlastset Mars-AD by No VDIs.csv"
+$computers = Import-Csv -Path "C:\path\file.csv"
 
 Foreach ($computer in $computers) {
     $ADComputer = Get-ADComputer -Identity $computer.DistinguishedName -Properties * | Select-Object Name, LastLogonTimeStamp, OperatingSystem
@@ -12,4 +12,4 @@ Foreach ($computer in $computers) {
     }
 }
 
-$computerLastLogonTimeStamps | Export-Csv -Path "C:\Users\abelraf\OneDrive - Mars Inc\Documents\Identity Team\Projects\ADDS\PingCastle reports\computerpasswordlastset Mars-AD by LastLogonTimeStamp.csv" -NoTypeInformation
+$computerLastLogonTimeStamps | Export-Csv -Path "C:\path\file.csv" -NoTypeInformation

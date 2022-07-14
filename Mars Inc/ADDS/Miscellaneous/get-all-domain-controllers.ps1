@@ -1,8 +1,8 @@
 <#
 .Synopsis
-   Script to retrieve all domain controllers from Mars-AD.NET
+   Script to retrieve all domain controllers from domain
 .DESCRIPTION
-   Script to retrieve all domain controllers from Mars-AD.NET
+   Script to retrieve all domain controllers from domain
 .REQUIREMENTS
    This script must be run locally from any DC
 .AUTHOR
@@ -13,4 +13,4 @@
 #>
 
 $AllDCs = (Get-ADForest).Domains | % { Get-ADDomainController -Filter * -Server $_ }
-$AllDCs | select Name, Domain, IPv4Address, Site |  Export-Csv "C:\temp\all-domaincontrollers - Mars-AD.Net.csv"
+$AllDCs | select Name, Domain, IPv4Address, Site |  Export-Csv "C:\path\file.csv"
