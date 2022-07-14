@@ -1,2 +1,2 @@
 # Code
-Codes developed by Rafael Abel and other contributors
+Codes developed by Rafael Abel
