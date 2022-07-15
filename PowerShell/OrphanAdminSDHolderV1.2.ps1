@@ -11,7 +11,7 @@
    Rafael Abel - rafael.abel@effem.com
    Based on https://gist.github.com/webash/b34c5a422288827ff4e53318e34c6923
 .DATE
-07 / 11 / 2022
+07/11/2022
 #>
 Import-Module ActiveDirectory
 Function Get-OrphanAdminSdHolderGroup {

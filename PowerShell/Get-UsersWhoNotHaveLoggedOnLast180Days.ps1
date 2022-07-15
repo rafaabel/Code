@@ -8,7 +8,7 @@
 .AUTHOR
    Svidergol, Brian; Allen, Robbie. Active Directory Cookbook: Solutions for Administrators & Developers (Cookbooks (O'Reilly)) (p. 117). O'Reilly Media
 .DATE
-03 / 31 / 2022
+03/31/2022
 #>
 
 $DaysSince = (Get-Date).AddDays(-180)

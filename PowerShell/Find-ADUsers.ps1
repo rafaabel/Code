@@ -12,7 +12,7 @@
    Based on "TechNet"
    https://social.technet.microsoft.com/wiki/contents/articles/32418.active-directory-troubleshooting-server-has-returned-the-following-error-invalid-enumeration-context.aspx
 .DATE
-09 / 22 / 2021
+09/22/2021
 #>
 
 $ExportPath = 'C:\Temp\find_users_in_AD.csv'

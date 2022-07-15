@@ -9,7 +9,7 @@
    Based on "netwrix" script
    https://www.netwrix.com/how_to_get_local_group_membership_report.html
 .DATE
-09 / 21 / 2021
+09/21/2021
 #>
 
 $strComputer = get-content env:computername #Enter the name of the target computer, localhost is used by default

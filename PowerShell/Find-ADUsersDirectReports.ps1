@@ -9,7 +9,7 @@
    Marcos Junior - marcos.junior@effem.com
    Rafael Abel - rafael.abel@effem.com
 .DATE
-10 / 06 / 2021
+10/06/2021
 #>
 
 #Connection to ARS

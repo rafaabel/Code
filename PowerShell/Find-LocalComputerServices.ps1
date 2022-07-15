@@ -8,7 +8,7 @@
 .AUTHOR
    Rafael Abel - rafael.abel@effem.com
 .DATE
-09 / 22 / 2021
+09/22/2021
 #>
 
 Get-CmiObject -Class Win32_Service |
